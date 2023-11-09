@@ -2,6 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
+// This is an attribute. In C#, attributes describe properties
+// about a field, function or in this case a class
+// The RequireComponent attribute makes it so that the editor
+// forces the component in typeof(XXXXX) - in this case
+// CharacterController - to be present on any GameObject
+// PlayerMovement is present
+
 [RequireComponent(typeof(CharacterController))]
 public class PlayerMovement : MonoBehaviour
 {
@@ -12,12 +20,12 @@ public class PlayerMovement : MonoBehaviour
 
     [SerializeField] float jumpPower = 5f;
 
-    [SerializeField] Transform groundCheckPoint;
-    [SerializeField] float groundCheckRadius = 0.2f;
-
     CharacterController _characterController;
 
     [SerializeField] bool _grounded = false;
+    [SerializeField] Transform groundCheck;
+    [SerializeField] float groundDistance = 0.2f;
+    [SerializeField] LayerMask groundMask;
     [SerializeField] Vector3 _velocity = Vector3.zero;
 
     bool _canJump = true;
@@ -25,6 +33,7 @@ public class PlayerMovement : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        //just a getter component
         _characterController = GetComponent<CharacterController>();
     }
 
@@ -36,8 +45,11 @@ public class PlayerMovement : MonoBehaviour
         PlanarDecelerate();
 
         Walk();
-        Turn();
         Jump();
+
+        // We need to get the distance we travel this frame
+        // so we multiply the velocity by the time step (Time.deltaTime)
+        // and use the result to call CharacterController's Move method
 
         var motion = _velocity * Time.deltaTime;
         var collisionFlags = _characterController.Move(motion);
@@ -46,13 +58,25 @@ public class PlayerMovement : MonoBehaviour
 
     void Gravity()
     {
+        // Applying gravity is a simple operation
+        // As gravity is a rate of change of velocity we need to multiply
+        // the gravity variable by the timestep (Time.deltaTime)
+        // and a Vector3 direction then add it to the _velocity variable
+        // What direction would be appropriate?
         _velocity += Vector3.down * gravity * Time.deltaTime;
     }
 
     void Walk()
     {
+
+        // First we get the movement direction using the Input class
         var vertical = Input.GetAxis("Vertical");
         var horizontal = Input.GetAxis("Horizontal");
+
+        // Then we calculate the directional speed and factor in
+        // the walkSpeed field
+        // We need to make sure this is relative to the direction
+        // we are currently facing
 
         var moveWalk = Mathf.Approximately(vertical, 0) ? 0 : (int)Mathf.Sign(vertical);
         var moveStrafe = Mathf.Approximately(horizontal, 0) ? 0 : (int)Mathf.Sign(horizontal);
@@ -77,6 +101,7 @@ public class PlayerMovement : MonoBehaviour
                 moveStrafe = 0;
         }
 
+        // First we get the movement direction using the Input class
         if (moveStrafe == 0 && moveWalk == 0)
             return;
 
@@ -87,13 +112,20 @@ public class PlayerMovement : MonoBehaviour
         _velocity += trueDirection * walkAcceleration * Time.deltaTime;
     }
 
-    void Turn()
-    {
-        transform.Rotate(new Vector3(0, Input.GetAxis("Mouse X"), 0));
-    }
 
     void Jump()
     {
+
+        //First we need a guard
+        // A method guard checks the state to see if the conditions are
+        // acceptable, if not it leaves the method early
+        // Under what conditions would we want to not be able to jump?
+
+        // Now we just check to see if the jump button is pressed
+        // then add the jump power
+        // What field of the velocity (x, y, z) would we want to apply the jump
+        // power to
+
         if (!_grounded || !_canJump)
             return;
 
@@ -101,6 +133,12 @@ public class PlayerMovement : MonoBehaviour
         // key is held down
 
         // With GetKey rather than GetKeyDown we get easy bunny hops
+
+
+        // With the way we're detecting the ground, it is possible that even after
+        // jumping being _grounded may still be true
+        // Using a coroutine, add a timeout that prevents you from being able
+        // to jump so soon
         if (Input.GetButton("Jump"))
         {
             _velocity.y += jumpPower;
@@ -110,11 +148,12 @@ public class PlayerMovement : MonoBehaviour
 
     IEnumerator ReJumpTimeout()
     {
-        _canJump = false;
+        _canJump = false; // What do you think would be an appropriate value?
         yield return new WaitForSeconds(0.2f);
         _canJump = true;
     }
 
+    /// Decelerates the player's movement on the xz plane when no movement keys are pressed.
     void PlanarDecelerate()
     {
         if (AnyMovementKeys())
@@ -133,35 +172,33 @@ public class PlayerMovement : MonoBehaviour
 
     void CheckGrounded()
     {
-        var overlaps = Physics.OverlapSphere(groundCheckPoint.position, groundCheckRadius);
 
-        _grounded = false;
-        foreach (var overlap in overlaps)
-        {
-            if (overlap != _characterController)
-            {
-                _grounded = true;
-                break;
-            }
-        }
+        _grounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
     }
 
     void CollisionResolution(CollisionFlags flags)
     {
+        // Simple collision reaction
+        // If a below collision has been detected
         if ((flags & CollisionFlags.Below) == CollisionFlags.Below)
         {
+             // And we are moving down // Set the Y velocity to zero
             if (_velocity.y < 0) _velocity.y = 0;
         }
     }
 
     bool AnyMovementKeys() => Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D);
 
+
+    // OnDrawGizmos and OnDrawGizmosSelected allow you to draw
+    // 'gizmos' in the scene. OnDrawGizmosSelected only draws when
+    // the GameObject this script is on is selected.
     private void OnDrawGizmos()
     {
-        if (groundCheckPoint)
+        if (groundCheck)
         {
             Gizmos.color = _grounded ? Color.green : Color.grey;
-            Gizmos.DrawWireSphere(groundCheckPoint.position, groundCheckRadius);
+            Gizmos.DrawWireSphere(groundCheck.position,  groundDistance);
         }
     }
 }
