@@ -145,9 +145,9 @@ public class PlayerMovement : MonoBehaviour
         deceleration.z = -Mathf.Sign(_velocity.z);
 
         _velocity +=  walkAcceleration * 0.7f * Time.deltaTime * deceleration;
-        if (Mathf.Abs(_velocity.x) < 0.01f)
+        if (Mathf.Abs(_velocity.x) < 3f)
             _velocity.x = 0;
-        if (Mathf.Abs(_velocity.z) < 0.01f)
+        if (Mathf.Abs(_velocity.z) < 3f)
             _velocity.z = 0;
     }
 

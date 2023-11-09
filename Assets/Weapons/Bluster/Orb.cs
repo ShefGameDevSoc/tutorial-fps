@@ -12,11 +12,13 @@ public class Orb : Bullet
 
     protected override float Damage => damage;
 
+    //get rigidbody of the object to be fired 
     private void Start()
     {
         _rigidbody = GetComponent<Rigidbody>();
     }
 
+    //
     private void Update()
     {
         aliveTime -= Time.deltaTime;
@@ -24,6 +26,7 @@ public class Orb : Bullet
             Destroy(gameObject);
     }
 
+    //add forceforward to bullet obj
     public override void Fire(Vector3 forward)
     {
         if (!_rigidbody)
