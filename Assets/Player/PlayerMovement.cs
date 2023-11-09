@@ -18,15 +18,16 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] float walkAcceleration = 10f;
     [SerializeField] float walkSpeed = 5f;
 
-    [SerializeField] float jumpPower = 5f;
+    [SerializeField] Vector3 _velocity = Vector3.zero;
 
     CharacterController _characterController;
 
+    [SerializeField] float jumpPower = 5f;
     [SerializeField] bool _grounded = false;
     [SerializeField] Transform groundCheck;
     [SerializeField] float groundDistance = 0.2f;
     [SerializeField] LayerMask groundMask;
-    [SerializeField] Vector3 _velocity = Vector3.zero;
+
 
     bool _canJump = true;
 
@@ -115,30 +116,10 @@ public class PlayerMovement : MonoBehaviour
 
     void Jump()
     {
-
-        //First we need a guard
-        // A method guard checks the state to see if the conditions are
-        // acceptable, if not it leaves the method early
-        // Under what conditions would we want to not be able to jump?
-
-        // Now we just check to see if the jump button is pressed
-        // then add the jump power
-        // What field of the velocity (x, y, z) would we want to apply the jump
-        // power to
-
         if (!_grounded || !_canJump)
             return;
 
-        // Noticing an odd pause between landing and jumping when the jump
-        // key is held down
-
-        // With GetKey rather than GetKeyDown we get easy bunny hops
-
-
-        // With the way we're detecting the ground, it is possible that even after
-        // jumping being _grounded may still be true
-        // Using a coroutine, add a timeout that prevents you from being able
-        // to jump so soon
+    
         if (Input.GetButton("Jump"))
         {
             _velocity.y += jumpPower;
