@@ -2,34 +2,40 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
+/// <summary>
+/// Handles aiming up and down shooting
+/// </summary>
 public class PlayerShooter : MonoBehaviour
 {
     [SerializeField] Transform weaponHolster;
-    [SerializeField] float sensitivity = 1f;
-
     [SerializeField] Transform bulletFirePoint;
     [SerializeField] Bullet bullet;
 
     void Start()
     {
-        // TODO Export handling of mouse state to a manager script
+        // This makes it so the game captures the mouse
+        // Without it the mouse scrolls out the game window constantly
+        // Try commenting out this line
         Cursor.lockState = CursorLockMode.Locked;
     }
 
     void Update()
     {
-        Aim();
-        Fire();
-    }
 
-    void Aim()
-    {
-        var rotate = Input.GetAxis("Mouse Y") * sensitivity;
-        weaponHolster.Rotate(new Vector3(-rotate, 0, 0));
+        Fire();
     }
 
     void Fire()
     {
+         // Upon pressing the fire button
+
+        // We want to Instantiate a bulletObj at the position and rotation
+        // of bulletFirePoint
+        // Instantiate creates a copy of a prefab and places it in the game world
+
+        // Finally we call the Fire method on the bullet, passing in the direction
+        // we want to fire it at
         if (!bullet)
             return;
 
@@ -50,3 +56,4 @@ public class PlayerShooter : MonoBehaviour
         }
     }
 }
+
