@@ -79,6 +79,10 @@ public class PlayerMovement : MonoBehaviour
         // We need to make sure this is relative to the direction
         // we are currently facing
 
+
+        //moveWalk will be -1, 0, or 1, representing backward movement, 
+        //no movement, or forward movement, respectively. 
+
         var moveWalk = Mathf.Approximately(vertical, 0) ? 0 : (int)Mathf.Sign(vertical);
         var moveStrafe = Mathf.Approximately(horizontal, 0) ? 0 : (int)Mathf.Sign(horizontal);
 
