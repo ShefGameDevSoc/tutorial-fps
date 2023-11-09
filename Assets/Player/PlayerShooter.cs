@@ -8,7 +8,6 @@ using UnityEngine;
 /// </summary>
 public class PlayerShooter : MonoBehaviour
 {
-    [SerializeField] Transform weaponHolster;
     [SerializeField] Transform bulletFirePoint;
     [SerializeField] Bullet bullet;
 
